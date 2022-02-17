@@ -247,6 +247,60 @@ function set_routes(server, db_connection) {
         }
     });
 
+    //Get list of bars by user id
+    server.route({
+        method: 'GET',
+        //Takes in user id as a param through path
+        path: '/bars/{user_id}',
+        handler: async function (request, reply) {
+            return await new Promise((resolve, reject) => {
+                const request = new Request(`select * from bars where city = (select city from users where id = '${ user_id }')`,
+                    (err, rowCount) => {
+                        if (err) {
+                            return resolve({});
+                        } else {
+                            console.log("this worked");
+                        }
+                    }
+                )
+            });
+            //As above, pushes each line of data to an array, then pushes the array to an outer array
+            //Outer array is returned as an array of arrays
+            var arr = new Array();
+            request.on('row', columns => {
+                var innerArr = new Array();
+                columns.forEach(element => {
+                    console.log(element.value);
+                    innerArr.push(element.value);
+                });
+                arr.push(innerArr);
+            });
+            //Final return of array on completion
+            request.on('doneProc', function (rowCount, more, returnStatus, rows) {
+                return resolve(arr);
+            });
+            db_connection.execSql(request);
+        }
+    });
+
+    //Post request test on test table
+    server.route({
+        method: "POST",
+        path: '/testPost/{num}',
+        handler: async function (request, reply) {
+            return await new Promise((resolve, reject) => {
+                const request = new Request(`insert into test_table (value) values(${num})`,
+                    (err, rowCount) => {
+                    if (err) {
+                        return resolve({});
+                    } else {
+                        console.log("this worked");
+                    }
+                })
+            });
+        }
+    });
+
     
     //  API Function: do nothing
     //    This route catches all paths that are not explicitly given above.
