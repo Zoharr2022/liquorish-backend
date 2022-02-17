@@ -286,19 +286,12 @@ function set_routes(server, db_connection) {
     //Post request test on test table
     server.route({
         method: "POST",
-        path: '/testPost/{num}',
-        handler: async function (request, reply) {
-            return await new Promise((resolve, reject) => {
-                const request = new Request(`insert into test_table (value) values(${num})`,
-                    (err, rowCount) => {
-                    if (err) {
-                        return resolve({});
-                    } else {
-                        console.log("this worked");
-                    }
-                })
-            });
+        path: "/book",
+        handler: async (request, resp) => {
+            console.log(":)");
         }
+        //  This fucntion is async so that we can await the database call synchronously
+        
     });
 
     
